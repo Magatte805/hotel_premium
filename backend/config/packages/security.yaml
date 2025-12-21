@@ -10,15 +10,29 @@ security:
                 property: email
 
     firewalls:
+        # Développement : profiler et assets
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
+        # Firewall pour le login JSON
+        login:
+            pattern: ^/api/login
+            stateless: true
+            provider: app_user_provider
+            json_login:
+                check_path: /api/login
+                username_path: email
+                password_path: password
+                success_handler: App\Security\LoginSuccessHandler
+                failure_handler: App\Security\LoginFailureHandler
+
+        # Firewall principal pour toutes les autres routes
         main:
             pattern: ^/
             stateless: true
             provider: app_user_provider
-            http_basic: ~
+            http_basic: ~ 
 
     access_control:
         - { path: ^/api/admin, roles: ROLE_ADMIN }
