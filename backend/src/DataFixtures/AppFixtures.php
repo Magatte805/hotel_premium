@@ -32,13 +32,13 @@ class AppFixtures extends Fixture
         // 2 Clients
         $client1 = new User();
         $client1->setEmail('client1@example.com');
-        $client1->setRoles(['ROLE_USER']);
+        $client1->setRoles(['ROLE_CLEINT']);
         $client1->setPassword($this->passwordHasher->hashPassword($client1, 'client123'));
         $manager->persist($client1);
 
         $client2 = new User();
         $client2->setEmail('client2@example.com');
-        $client2->setRoles(['ROLE_USER']);
+        $client2->setRoles(['ROLE_CLIENT']);
         $client2->setPassword($this->passwordHasher->hashPassword($client2, 'client123'));
         $manager->persist($client2);
 
