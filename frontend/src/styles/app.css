@@ -541,3 +541,11 @@ a:hover{ text-decoration:underline; }
   padding:12px 14px;
   border-radius:14px;
 }
+
+.control {
+  color: black;           /* texte visible */
+  background-color: white; /* fond clair */
+  font-size: 16px;         /* lisible */
+  padding: 8px;
+}
+

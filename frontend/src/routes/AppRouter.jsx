@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
+import Register from "../pages/public/Register";
 import Home from "../pages/public/Home";
 import Login from "../pages/public/Login";
 
@@ -23,6 +24,7 @@ export default function AppRouter() {
         {/* Public */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} /> 
 
         {/* Admin */}
         <Route path="/admin" element={<AdminLayout />}>

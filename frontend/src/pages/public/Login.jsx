@@ -1,39 +1,62 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../../config";
 
 export default function Login() {
   const navigate = useNavigate();
   const [mode, setMode] = useState("client");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const placeholder = useMemo(
-    () =>
-      mode === "admin"
-        ? "admin@hotel-premium.fr"
-        : "client@hotel-premium.fr",
-    [mode]
-  );
+  const placeholder =
+    mode === "admin" ? "admin@example.com" : "client1@example.com";
 
-  const onSubmit = (e) => {
-    e.preventDefault();
-    navigate(mode === "admin" ? "/admin" : "/client");
-  };
+  const onSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+
+  if (!email || !password) {
+    setError("Veuillez remplir tous les champs.");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, mode }),
+    });
+
+    const data = await res.json();
+
+    if (res.status === 200 && data.success) {
+      // Login OK → redirection
+      navigate(mode === "admin" ? "/admin" : "/client");
+    } else {
+      // Erreur (user non trouvé / mot de passe incorrect / rôle incorrect)
+      setError(data.error || "Email ou mot de passe incorrect");
+    }
+  } catch (err) {
+    setError("Erreur réseau");
+    console.error(err);
+  }
+};
+
 
   const fillDemo = () => {
     if (mode === "admin") {
-      setEmail("admin@test.com");
-      setPassword("admin");
+      setEmail("admin@example.com");
+      setPassword("admin123"); // mot de passe en clair de ta BDD
     } else {
-      setEmail("client@test.com");
-      setPassword("client");
+      setEmail("client1@example.com");
+      setPassword("client123"); // mot de passe en clair de ta BDD
     }
   };
 
   return (
     <div className="authWrap">
       <div className="authCard">
-
         <div className="brand">
           <span className="logoDot" />
           <div className="brandName">Hôtels Premium</div>
@@ -41,8 +64,7 @@ export default function Login() {
 
         <h1 className="authTitle">Connexion</h1>
         <p className="authText">
-          Accède à l’espace <b>{mode === "admin" ? "Admin" : "Client"}</b> pour
-          consulter les données du projet.
+          Accède à l’espace <b>{mode === "admin" ? "Admin" : "Client"}</b>
         </p>
 
         <div className="tabs">
@@ -74,7 +96,6 @@ export default function Login() {
           <div className="field">
             <div className="rowBetween">
               <div className="label">Mot de passe</div>
-              <span className="smallLink">Mot de passe oublié ?</span>
             </div>
             <input
               className="control"
@@ -92,13 +113,19 @@ export default function Login() {
             </button>
           </div>
 
-          <div className="hint">
-            <b>Mode statique :</b> le backend n’est pas encore branché.
-            Ce login sert uniquement à naviguer et tester l’UI.
-          </div>
+         <div className="hint">
+          Vous n'avez pas de compte ?{" "}
+          <span
+            style={{ color: "blue", cursor: "pointer" }}
+            onClick={() => navigate("/register")}
+          >
+            Créer un compte
+          </span>
+      </div>
+          {error && <div style={{ color: "red" }}>{error}</div>}
         </form>
-
       </div>
     </div>
   );
+
 }
