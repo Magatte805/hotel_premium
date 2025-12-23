@@ -1,0 +1,8 @@
+# Node
+node_modules/
+
+# PHP / Symfony
+vendor/
+
+# JWT ou clés privées
+jwt/
