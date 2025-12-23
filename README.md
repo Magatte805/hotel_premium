@@ -26,6 +26,12 @@ Le projet permet de :
 - Khadim Diop
 - Qatre En Nada Abdellah
 
+### Historique du développement
+- Le **backend** a été développé en premier et poussé sur la branche `backend`.  
+- Le **frontend** a été développé ensuite et poussé sur la branche `frontend`.  
+- Les deux parties ont ensuite été **fusionnées sur la branche `develop`** pour effectuer les tests et vérifier la cohérence globale.  
+- Une fois validé, le projet a été **intégré dans `main`**
+
 
 ## Arborescence 
 
