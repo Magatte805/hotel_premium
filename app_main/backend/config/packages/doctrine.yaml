@@ -30,8 +30,14 @@ doctrine:
 when@test:
     doctrine:
         dbal:
-            # "TEST_TOKEN" is typically set by ParaTest
-            dbname_suffix: '_test%env(default::TEST_TOKEN)%'
+            # We provide an explicit DATABASE_URL for tests (e.g. app_test),
+            # so don't auto-suffix the database name.
+            # "TEST_TOKEN" suffixing is useful for ParaTest, but it breaks
+            # when DATABASE_URL already points to a dedicated test database.
+            #
+            # If you need ParaTest later, re-enable a suffix strategy.
+            #
+            # dbname_suffix: '_test%env(default::TEST_TOKEN)%'
 
 when@prod:
     doctrine:

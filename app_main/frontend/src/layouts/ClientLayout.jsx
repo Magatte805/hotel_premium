@@ -1,4 +1,4 @@
-import { Outlet, Link, useNavigate } from "react-router-dom";
+import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { clearAuth } from "../utils/auth";
 
 export default function ClientLayout() {
@@ -10,9 +10,15 @@ export default function ClientLayout() {
         <h3>Client</h3>
 
         <nav className="nav">
-          <Link to="/client">Dashboard</Link>
-          <Link to="/client/reservations">Réservations</Link>
-          <Link to="/client/availability">Disponibilités</Link>
+          <NavLink to="/client" end className={({ isActive }) => (isActive ? "active" : undefined)}>
+            Dashboard
+          </NavLink>
+          <NavLink to="/client/reservations" className={({ isActive }) => (isActive ? "active" : undefined)}>
+            Réservations
+          </NavLink>
+          <NavLink to="/client/availability" className={({ isActive }) => (isActive ? "active" : undefined)}>
+            Disponibilités
+          </NavLink>
         </nav>
 
         <button

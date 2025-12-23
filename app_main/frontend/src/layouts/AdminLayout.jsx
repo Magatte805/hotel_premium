@@ -1,4 +1,4 @@
-import { Outlet, Link, useNavigate } from "react-router-dom";
+import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { clearAuth } from "../utils/auth";
 
 export default function AdminLayout() {
@@ -10,11 +10,21 @@ export default function AdminLayout() {
         <h3>Admin</h3>
 
         <nav className="nav">
-          <Link to="/admin">Dashboard</Link>
-          <Link to="/admin/hotels">Hôtels</Link>
-          <Link to="/admin/rooms">Chambres</Link>
-          <Link to="/admin/works">Travaux</Link>
-          <Link to="/admin/occupancy">Occupation</Link>
+          <NavLink to="/admin" end className={({ isActive }) => (isActive ? "active" : undefined)}>
+            Dashboard
+          </NavLink>
+          <NavLink to="/admin/hotels" className={({ isActive }) => (isActive ? "active" : undefined)}>
+            Hôtels
+          </NavLink>
+          <NavLink to="/admin/rooms" className={({ isActive }) => (isActive ? "active" : undefined)}>
+            Chambres
+          </NavLink>
+          <NavLink to="/admin/works" className={({ isActive }) => (isActive ? "active" : undefined)}>
+            Travaux
+          </NavLink>
+          <NavLink to="/admin/occupancy" className={({ isActive }) => (isActive ? "active" : undefined)}>
+            Occupation
+          </NavLink>
         </nav>
 
         <button

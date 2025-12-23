@@ -42,6 +42,18 @@ body{
 a{ color:var(--primary); text-decoration:none; }
 a:hover{ text-decoration:underline; }
 
+/* nicer base typography */
+h1, h2, h3, h4 {
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+/* focus ring */
+:where(a, button, input, textarea, select):focus-visible{
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, .22);
+}
+
 /* ===========================
    LAYOUT GLOBAL
    =========================== */
@@ -83,6 +95,12 @@ a:hover{ text-decoration:underline; }
   text-decoration:none;
 }
 
+.nav a.active{
+  background: rgba(37, 99, 235, .10);
+  border-color: rgba(37, 99, 235, .25);
+  color: var(--primary-dark);
+}
+
 /* buttons */
 .btn{
   padding:10px 12px;
@@ -92,8 +110,10 @@ a:hover{ text-decoration:underline; }
   cursor:pointer;
   font-weight:700;
   color: var(--primary-dark);
+  transition: background .15s ease, border-color .15s ease, transform .08s ease;
 }
 .btn:hover{ background: var(--soft); }
+.btn:active{ transform: translateY(1px); }
 
 .btnPrimary{
   padding:10px 12px;
@@ -104,8 +124,10 @@ a:hover{ text-decoration:underline; }
   cursor:pointer;
   font-weight:900;
   box-shadow: 0 12px 30px rgba(37, 99, 235, .22);
+  transition: filter .15s ease, transform .08s ease, box-shadow .15s ease;
 }
 .btnPrimary:hover{ filter:brightness(.96); }
+.btnPrimary:active{ transform: translateY(1px); }
 
 /* main */
 .main{
@@ -165,6 +187,11 @@ a:hover{ text-decoration:underline; }
   border-radius:var(--radius);
   padding:16px;
   box-shadow: var(--shadow);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.card:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, .10);
 }
 
 .cardTop{
@@ -234,7 +261,6 @@ a:hover{ text-decoration:underline; }
   gap:10px;
   font-size:14px;
 }
-.row span:first-child{ color: rgba(127,29,29,.70); }
 .row span:first-child{ color: rgba(71, 85, 105, .85); }
 
 /* responsive */
@@ -444,7 +470,6 @@ a:hover{ text-decoration:underline; }
 
 .form{ display:grid; gap:14px; }
 .field{ display:grid; gap:6px; }
-.label{ font-size:12px; color:#991b1b; font-weight:700; }
 .label{ font-size:12px; color: var(--muted); font-weight:700; }
 
 .control{
@@ -512,12 +537,5 @@ a:hover{ text-decoration:underline; }
   border:1px dashed var(--border);
   padding:12px 14px;
   border-radius:14px;
-}
-
-.control {
-  color: black;           /* texte visible */
-  background-color: white; /* fond clair */
-  font-size: 16px;         /* lisible */
-  padding: 8px;
 }
 

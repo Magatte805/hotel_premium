@@ -158,9 +158,7 @@ export default function Register() {
             </button>
           </div>
 
-          <div className="hint">
-            Inscription rapide, comme une vraie appli de réservation.
-          </div>
+       
 
           {error && <div style={{ color: "red" }}>{error}</div>}
         </form>

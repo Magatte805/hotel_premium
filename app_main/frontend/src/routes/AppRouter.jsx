@@ -16,13 +16,17 @@ import AdminOccupancy from "../pages/admin/AdminOccupancy";
 import ClientDashboard from "../pages/client/ClientDashboard";
 import ClientReservations from "../pages/client/ClientReservations";
 import ClientAvailability from "../pages/client/ClientAvailability";
+import { getAuth } from "../utils/auth";
 
 export default function AppRouter() {
+  const auth = getAuth();
+  const defaultAfterLogin = auth?.role === "admin" ? "/admin" : auth?.role === "client" ? "/client" : "/login";
+
   return (
     <BrowserRouter>
       <Routes>
         {/* Public */}
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Navigate to={defaultAfterLogin} replace />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} /> 
 
@@ -43,7 +47,7 @@ export default function AppRouter() {
         </Route>
 
         {/* fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to={defaultAfterLogin} replace />} />
       </Routes>
     </BrowserRouter>
   );

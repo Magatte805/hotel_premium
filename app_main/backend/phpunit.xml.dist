@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+    bootstrap="tests/bootstrap.php"
+    colors="true"
+    cacheDirectory=".phpunit.cache"
+>
+    <testsuites>
+        <testsuite name="Project Test Suite">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+
+    <php>
+        <!-- Symfony test env -->
+        <env name="APP_ENV" value="test"/>
+        <env name="APP_DEBUG" value="0"/>
+
+        <!-- Use SQLite for tests to avoid depending on Postgres -->
+        <env name="DATABASE_URL" value="sqlite:///%kernel.project_dir%/var/data_test.db"/>
+    </php>
+</phpunit>
+
+
