@@ -1,0 +1,35 @@
+#!/usr/bin/env php
+<?php
+
+use App\Kernel;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+
+if (!is_dir(dirname(__DIR__).'/vendor')) {
+    throw new LogicException('Dependencies are missing. Try running "composer install".');
+}
+
+if (!is_file(dirname(__DIR__).'/vendor/autoload_runtime.php')) {
+    throw new LogicException('Symfony Runtime is missing. Try running "composer require symfony/runtime".');
+}
+
+// Load versioned local dev env defaults (no .env needed).
+$localEnvFile = dirname(__DIR__).'/config/local_env.php';
+if (is_file($localEnvFile)) {
+    $localEnv = require $localEnvFile;
+    if (is_array($localEnv)) {
+        foreach ($localEnv as $key => $value) {
+            if (!isset($_SERVER[$key]) && !isset($_ENV[$key])) {
+                $_SERVER[$key] = $_ENV[$key] = (string) $value;
+                putenv($key.'='.$value);
+            }
+        }
+    }
+}
+
+require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
+
+return function (array $context) {
+    $kernel = new Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
+
+    return new Application($kernel);
+};
