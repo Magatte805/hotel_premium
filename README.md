@@ -127,6 +127,10 @@ Une fois inscrit, le client peut :
 L'application est testée avec **PHPUnit** sur la base PostgreSQL configurée dans Docker.  
 Cette configuration correspond exactement à l’environnement de production.
 
+> Les détails de la campagne de tests (tests automatisés et tests manuels),
+> les cas de tests, le périmètre et les critères d’acceptation
+> sont décrits dans le fichier `tests.md` à la racine du projet.
+
 ### **Étape 1 — Créer la base de test**
 
 ```bash
