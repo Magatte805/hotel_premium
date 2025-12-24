@@ -73,7 +73,7 @@ Créer au minimum :
 - **Préconditions**: réservation active mais `user.firstName/lastName` vides.
 - **Résultat attendu**: Affiche l’email si dispo, sinon “Réservé”.
 
-## 7) Cas de tests (manuel) — Admin Travaux
+## 7) Cas de tests (manuel) Admin Travaux
 ### TC-UI-06 - Créer un travail et vérifier le dashboard
 - **Étapes**:
   - Admin → Travaux
@@ -82,7 +82,7 @@ Créer au minimum :
   - Revenir au dashboard
 - **Résultat attendu**: la chambre est marquée “Travaux”.
 
-## 8) Cas de tests (automatisés) — API (PHPUnit)
+## 8) Cas de tests (automatisés)  API (PHPUnit)
 ### Couverture
 - Auth & rôles:
   - Sans auth: 401
