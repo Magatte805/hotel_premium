@@ -20,9 +20,17 @@ export default function ClientDashboard() {
   const [hotelsLoading, setHotelsLoading] = useState(true);
   const [hotels, setHotels] = useState([]);
   const [roomsByHotel, setRoomsByHotel] = useState({});
+  const [roomsLoadingByHotel, setRoomsLoadingByHotel] = useState({});
   const [cityQuery, setCityQuery] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [reserveLoadingId, setReserveLoadingId] = useState(null);
+
+  // When date range changes, reload rooms so occupancy badges match the selected dates.
+  useEffect(() => {
+    setRoomsByHotel({});
+    setRoomsLoadingByHotel({});
+  }, [startDate, endDate]);
 
   const loadReservations = async () => {
     setLoading(true);
@@ -66,9 +74,16 @@ export default function ClientDashboard() {
 
   const ensureRoomsLoaded = async (hotelId) => {
     if (roomsByHotel[hotelId]) return;
-    const { res, data } = await apiFetch(`/client/hotels/${hotelId}/rooms`, {
+    if (roomsLoadingByHotel[hotelId]) return;
+    setRoomsLoadingByHotel((prev) => ({ ...prev, [hotelId]: true }));
+    const qs =
+      startDate && endDate
+        ? `?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`
+        : "";
+    const { res, data } = await apiFetch(`/client/hotels/${hotelId}/rooms${qs}`, {
       method: "GET",
     });
+    setRoomsLoadingByHotel((prev) => ({ ...prev, [hotelId]: false }));
     if (!res.ok) {
       setError(data?.error || "Impossible de charger les chambres.");
       return;
@@ -76,16 +91,27 @@ export default function ClientDashboard() {
     setRoomsByHotel((prev) => ({ ...prev, [hotelId]: Array.isArray(data) ? data : [] }));
   };
 
+  // UX: auto-load rooms for the first few hotels so "Réserver" is visible without extra clicks.
+  useEffect(() => {
+    if (hotelsLoading) return;
+    const first = filteredHotels.slice(0, 3);
+    first.forEach((h) => ensureRoomsLoaded(h.id));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hotelsLoading, filteredHotels]);
+
   const reserve = async (roomId) => {
     setError("");
     if (!startDate || !endDate) {
       setError("Veuillez choisir une date de début et une date de fin.");
       return;
     }
+    if (reserveLoadingId) return;
+    setReserveLoadingId(roomId);
     const { res, data } = await apiFetch("/client/reservations", {
       method: "POST",
       body: JSON.stringify({ room_id: roomId, startDate, endDate }),
     });
+    setReserveLoadingId(null);
     if (res.status === 201) {
       setError("Réservation créée !");
       await loadReservations();
@@ -192,16 +218,34 @@ export default function ClientDashboard() {
           <div className="rows">
             {filteredHotels.slice(0, 6).map((h) => {
               const list = roomsByHotel[h.id] || [];
+              const hasRoomsKey = Object.prototype.hasOwnProperty.call(roomsByHotel, h.id);
+              const roomsLoading = !!roomsLoadingByHotel[h.id];
               return (
-                <div key={h.id} className="row" style={{ alignItems: "center" }}>
-                  <span>
-                    <b>{h.name}</b> — {h.city}
-                  </span>
-                  <span>
-                    <button className="btn" onClick={() => ensureRoomsLoaded(h.id)}>
-                      Chambres
-                    </button>
-                  </span>
+                <div key={h.id} style={{ width: "100%" }}>
+                  <div className="row" style={{ alignItems: "center" }}>
+                    <span>
+                      <b>{h.name}</b> — {h.city}
+                    </span>
+                    <span>
+                      <button
+                        className="btn"
+                        disabled={roomsLoading}
+                        onClick={() => ensureRoomsLoaded(h.id)}
+                        title="Charger les chambres"
+                      >
+                        {roomsLoading ? "Chargement…" : "Afficher chambres"}
+                      </button>
+                    </span>
+                  </div>
+
+                  {roomsLoading && <div className="muted" style={{ marginTop: 8 }}>Chargement des chambres…</div>}
+
+                  {!roomsLoading && hasRoomsKey && list.length === 0 && (
+                    <div className="muted" style={{ marginTop: 8 }}>
+                      Aucune chambre trouvée pour cet hôtel.
+                    </div>
+                  )}
+
                   {list.length > 0 && (
                     <div style={{ width: "100%", marginTop: 8 }}>
                       {list.slice(0, 4).map((r) => (
@@ -212,6 +256,11 @@ export default function ClientDashboard() {
                         >
                           <span>
                             Chambre <b>{r.number}</b>
+                            {(startDate && endDate ? r.occupiedForDates : r.occupiedToday) ? (
+                              <span className="badge cancel" style={{ marginLeft: 10 }}>Occupée</span>
+                            ) : (
+                              <span className="badge ok" style={{ marginLeft: 10 }}>Libre</span>
+                            )}
                           </span>
                           <span>
                             <b>{r.pricePerNight} €</b> / nuit{" "}
@@ -219,8 +268,10 @@ export default function ClientDashboard() {
                               className="btnPrimary"
                               style={{ marginLeft: 10 }}
                               onClick={() => reserve(r.id)}
+                              disabled={reserveLoadingId === r.id}
                             >
-                              Réserver
+                              {reserveLoadingId === r.id && <span className="spinner sm white" />}
+                              {reserveLoadingId === r.id ? "Réservation…" : "Réserver"}
                             </button>
                           </span>
                         </div>

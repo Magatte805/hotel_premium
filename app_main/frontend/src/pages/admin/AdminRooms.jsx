@@ -13,6 +13,7 @@ export default function AdminRooms() {
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
   const [rooms, setRooms] = useState([]);
   const [hotels, setHotels] = useState([]);
 
@@ -58,6 +59,8 @@ export default function AdminRooms() {
       setError("Veuillez remplir hôtel, numéro et prix.");
       return;
     }
+    if (saving) return;
+    setSaving(true);
 
     const { res, data } = await apiFetch("/admin/rooms", {
       method: "POST",
@@ -67,6 +70,7 @@ export default function AdminRooms() {
         pricePerNight: Number(pricePerNight),
       }),
     });
+    setSaving(false);
     if (res.status === 201) {
       setHotelId("");
       setNumber("");
@@ -133,7 +137,10 @@ export default function AdminRooms() {
           </div>
 
           <div className="cta">
-            <button className="btnPrimary">Ajouter</button>
+            <button className="btnPrimary" disabled={saving}>
+              {saving && <span className="spinner sm white" />}
+              {saving ? "Ajout…" : "Ajouter"}
+            </button>
           </div>
         </form>
       </div>
