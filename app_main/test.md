@@ -1,4 +1,4 @@
-# Campagne de tests — Hotel Premium (Admin Dashboard)
+# Campagne de tests  Hotel Premium (Admin Dashboard)
 
 ## 1) Objectif
 Valider que le **dashboard Admin** reflète correctement l’état des chambres :
