@@ -41,7 +41,7 @@ Le projet permet de :
 |-- README.md
 |-- backend/
 |-- frontend/
-`-- vendor/ (généré par composer, selon ton setup)
+`-- vendor/ 
 ```
 
 ## Démarrage du projet (Docker)
@@ -123,36 +123,33 @@ Une fois inscrit, le client peut :
 - réserver une chambre sur une période donnée
 - annuler une réservation
 
-## Tests (PHPUnit)
+## Les Tests(PHPUnit)
+L'application est testée avec **PHPUnit** sur la base PostgreSQL configurée dans Docker.  
+Cette configuration correspond exactement à l’environnement de production.
 
-### Option A — SQLite (simple, par défaut)
+### ***Étape 1 — Créer la base de test**
 
 ```bash
-docker compose exec backend php bin/phpunit --testdox
+docker-compose exec database sh -lc "psql -U app -d postgres -c 'CREATE DATABASE app_test;' || true"
 ```
+Crée une base app_test indépendante de la base principale.
 
-### Option B — PostgreSQL (recommandé si tu veux coller à la prod)
-
-1) **Créer la DB de test** (une fois) :
-
+### **Étape 2 — Appliquer les migrations dans app_test**
 ```bash
-docker compose exec database sh -lc "psql -U app -d postgres -c 'CREATE DATABASE app_test;' || true"
+docker-compose exec -e APP_ENV=test -e APP_DEBUG=0 -e DATABASE_URL='postgresql://app:!ChangeMe!@database:5432/app_test?serverVersion=16&charset=utf8' backend php bin/console doctrine:migrations:migrate -n
 ```
+- Prépare la base de test avec toutes les tables nécessaires.
+- Les migrations sont identiques à celles de la base principale.
 
-2) **Appliquer les migrations dans `app_test`** :
-
+### **Étape 3 — Lancer PHPUnit**
 ```bash
-docker compose exec -e APP_ENV=test -e APP_DEBUG=0 -e DATABASE_URL="postgresql://app:!ChangeMe!@database:5432/app_test?serverVersion=16&charset=utf8" backend php bin/console doctrine:migrations:migrate -n
+docker-compose exec backend php bin/phpunit -c phpunit.pgsql.xml.dist --testdox
 ```
+- Tous les tests unitaires et fonctionnels sont exécutés sur la base app_test.
+- Les données de la base principale ne sont pas modifiées.
 
-3) **Lancer PHPUnit (config Postgres)** :
 
+## Arrêter le docker 
 ```bash
-docker compose exec backend php bin/phpunit -c phpunit.pgsql.xml.dist --testdox
-```
-
-## Stop
-
-```bash
-docker compose down
+docker-compose down
 ```
