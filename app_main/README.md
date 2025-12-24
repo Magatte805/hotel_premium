@@ -66,13 +66,9 @@ docker compose exec backend php bin/phpunit --testdox
 docker compose exec database sh -lc "psql -U app -d postgres -c 'CREATE DATABASE app_test;' || true"
 ```
 
-2) **Appliquer les migrations dans `app_test`** :
 
-```bash
-docker compose exec -e APP_ENV=test -e APP_DEBUG=0 -e DATABASE_URL="postgresql://app:!ChangeMe!@database:5432/app_test?serverVersion=16&charset=utf8" backend php bin/console doctrine:migrations:migrate -n
-```
 
-3) **Lancer PHPUnit (config Postgres)** :
+2) **Lancer PHPUnit (config Postgres)** :
 
 ```bash
 docker compose exec backend php bin/phpunit -c phpunit.pgsql.xml.dist --testdox
