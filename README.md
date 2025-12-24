@@ -38,7 +38,6 @@ Le projet permet de :
 ```text
 .
 |-- docker-compose.yml
-|-- README.md
 |-- backend/
 |-- frontend/
 `-- vendor/ 
