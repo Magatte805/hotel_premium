@@ -17,7 +17,7 @@ Le projet permet de :
 
 ### Technologies utilisées
 - Backend : Symfony (PHP)
-- Frontend : Vite
+- Frontend : REACT(Vite)
 - Base de données : PostgreSQL
 - Conteneurisation : Docker
 
@@ -44,34 +44,69 @@ Le projet permet de :
 `-- vendor/ (généré par composer, selon ton setup)
 ```
 
-## Démarrage (Docker)
+## Démarrage du projet (Docker)
+Ce projet est entièrement dockerisé. Il est composé de :
+- un backend Symfony (API)
+- un frontend React (Vite)
+- une base de données PostgreSQL
 
+#### Prérequis
+- Docker
+- Docker Compose
+
+### Étape 1 — Lancer l’application
+Depuis la racine du projet (app_main) :
 ```bash
 docker compose up -d --build
 ```
+Cette commande :
+- construit les images Docker
+- démarre les conteneurs frontend, backend et database
+  
+#### URLs disponibles
+- **Frontend** : http://localhost:5173
+- **Backend (API)**: http://localhost:8080
+- **PostgreSQL** :
+      - host : localhost
+      - port : 5432
+      - database : app
+      - user : app
+      - password : !ChangeMe!
 
-### URLs
-- **Frontend**: `http://localhost:5173`
-- **Backend API**: `http://localhost:8080`
-- **PostgreSQL**: `localhost:5432` (db: `app`, user: `app`, pass: `!ChangeMe!`)
-
-## Migrations (PostgreSQL)
-
+## Étape 2 — Initialiser la base de données (migrations)
+Une fois les conteneurs démarrés, il est nécessaire de créer les tables de la base de données.
 ```bash
 docker compose exec backend php bin/console doctrine:migrations:migrate -n
 ```
+Cette commande :
+- applique les migrations Doctrine
+- crée toutes les tables nécessaires au fonctionnement de l’application
 
-## Créer un utilisateur (admin / client)
+## Étape 3 — Création des utilisateurs
+L’application gère deux types d’utilisateurs :
+- Administrateur
+- Client
 
-### Créer un **admin** (commande Symfony)
+### Création d’un administrateur (via le terminal)
+Pour des raisons de sécurité, un administrateur est créé uniquement via une **commande Symfony**:
 
 ```bash
-docker compose exec backend php bin/console app:create-admin --email admin@hotel.tn --password "Admin1234!"
+docker compose exec backend php bin/console app:create-admin \
+  --email admin@hotel.tn \
+  --password "ton_mdp"
 ```
+Cet administrateur peut :
+- gérer les hôtels
+- visualiser les chambres
+- suivre les réservations
+- superviser l’occupation en temps réel
 
-Ensuite connecte-toi sur `http://localhost:5173/login` avec cet email/mot de passe.
+Une fois créé, il peut se connecter via http://localhost:5173/login avec son email/mot de passe.
 
-### Créer un **client** (API register)
+
+### Création d’un client
+Deux possibilités :
+➤ **Via l’API (exemple avec curl)**
 
 ```bash
 curl -X POST "http://localhost:8080/api/register" ^
@@ -79,7 +114,14 @@ curl -X POST "http://localhost:8080/api/register" ^
   -d "{\"firstName\":\"Sami\",\"lastName\":\"Ben Ali\",\"phone\":\"123456\",\"email\":\"client@hotel.tn\",\"password\":\"Client1234!\"}"
 ```
 
-Puis login sur `http://localhost:5173/login`.
+➤ **Via l’interface utilisateur**
+Un client peut également créer un compte directement depuis l’interface frontend en remplissant le formulaire d’inscription.
+
+Une fois inscrit, le client peut :
+- se connecter via http://localhost:5173/login
+- consulter les hôtels
+- réserver une chambre sur une période donnée
+- annuler une réservation
 
 ## Tests (PHPUnit)
 
