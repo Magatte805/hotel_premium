@@ -51,7 +51,7 @@ Ce projet est entièrement dockerisé. Il est composé de :
 - une base de données PostgreSQL
 
 #### Prérequis
-- Docker
+- Docker(doit être installé et en cours d’exécution)
 - Docker Compose
 
 ### Étape 1 — Lancer l’application
@@ -127,7 +127,7 @@ Une fois inscrit, le client peut :
 L'application est testée avec **PHPUnit** sur la base PostgreSQL configurée dans Docker.  
 Cette configuration correspond exactement à l’environnement de production.
 
-### ***Étape 1 — Créer la base de test**
+### **Étape 1 — Créer la base de test**
 
 ```bash
 docker-compose exec database sh -lc "psql -U app -d postgres -c 'CREATE DATABASE app_test;' || true"
