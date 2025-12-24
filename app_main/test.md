@@ -17,8 +17,7 @@ Et que les API Admin sont correctement protégées par authentification et rôle
   - `frontend/src/pages/admin/AdminDashboard.jsx` (affichage Réservé/Libre/Travaux)
   - `frontend/src/pages/admin/AdminWorks.jsx` (création & suivi travaux par chambre)
 
-### Exclu
-- Paiement, facturation, notifications, performance/charge.
+
 
 ## 3) Environnements
 ### Tests automatisés (CI / local)
