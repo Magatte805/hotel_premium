@@ -6,6 +6,7 @@ export default function AdminHotels() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
   const [query, setQuery] = useState("");
   const [hotels, setHotels] = useState([]);
 
@@ -48,10 +49,13 @@ export default function AdminHotels() {
       setError("Veuillez remplir nom, ville et adresse.");
       return;
     }
+    if (saving) return;
+    setSaving(true);
     const { res, data } = await apiFetch("/admin/hotels", {
       method: "POST",
       body: JSON.stringify({ name, city, address }),
     });
+    setSaving(false);
     if (res.status === 201) {
       setName("");
       setCity("");
@@ -125,8 +129,9 @@ export default function AdminHotels() {
               <input className="control" value={address} onChange={(e) => setAddress(e.target.value)} />
             </div>
             <div className="cta">
-              <button className="btnPrimary" onClick={addHotel}>
-                Enregistrer
+              <button className="btnPrimary" onClick={addHotel} disabled={saving}>
+                {saving && <span className="spinner sm white" />}
+                {saving ? "Enregistrement…" : "Enregistrer"}
               </button>
               <button className="btn" onClick={() => setShowAdd(false)}>
                 Annuler

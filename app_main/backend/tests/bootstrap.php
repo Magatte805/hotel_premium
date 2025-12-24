@@ -2,7 +2,9 @@
 
 use Symfony\Component\Dotenv\Dotenv;
 
-require dirname(__DIR__).'/vendor/autoload.php';
+require_once dirname(__DIR__).'/vendor/autoload.php';
+// Force-load the Kernel with require_once to avoid rare autoload double-inclusion issues in some Docker setups.
+require_once dirname(__DIR__).'/src/Kernel.php';
 
 if (method_exists(Dotenv::class, 'bootEnv')) {
     // Don't override APP_ENV/APP_DEBUG injected by PHPUnit config (e.g. pgsql test setup).
@@ -11,6 +13,6 @@ if (method_exists(Dotenv::class, 'bootEnv')) {
     }
 }
 
-if ($_SERVER['APP_DEBUG']) {
+if (!empty($_SERVER['APP_DEBUG'])) {
     umask(0000);
 }

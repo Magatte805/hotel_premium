@@ -129,6 +129,39 @@ h1, h2, h3, h4 {
 .btnPrimary:hover{ filter:brightness(.96); }
 .btnPrimary:active{ transform: translateY(1px); }
 
+/* ===========================
+   SPINNER (loading)
+   =========================== */
+
+.spinner{
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  border: 2px solid rgba(15, 23, 42, .18);
+  border-top-color: var(--primary);
+  display: inline-block;
+  animation: spin .8s linear infinite;
+}
+
+.spinner.sm{ width: 14px; height: 14px; border-width: 2px; }
+.spinner.white{ border-color: rgba(255,255,255,.35); border-top-color: #fff; }
+
+.btn .spinner,
+.btnPrimary .spinner{
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.btn:disabled,
+.btnPrimary:disabled{
+  opacity: .65;
+  cursor: not-allowed;
+}
+
 /* main */
 .main{
   flex:1;

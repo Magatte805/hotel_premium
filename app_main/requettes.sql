@@ -1,12 +1,6 @@
--- Seed data (PostgreSQL) for hotel_premium
--- Re-runnable: it wipes tables then inserts a small, realistic dataset.
---
--- How to run (Docker):
---   docker compose exec -T database psql -U app -d app < seed.sql
---
+
 BEGIN;
 
--- Clean existing data (order matters due to FK)
 TRUNCATE TABLE
   room_service,
   maintenance,
@@ -20,11 +14,11 @@ CASCADE;
 
 -- Hotels
 INSERT INTO hotel (id, name, city, address) VALUES
-  (1, 'Hôtel Medina Palace', 'Tunis', '12 Avenue Habib Bourguiba, Tunis'),
-  (2, 'Sahara Resort & Spa', 'Tozeur', 'Route de Nefta, Tozeur'),
-  (3, 'Carthage Bay Hotel', 'Gammarth', 'Zone Touristique, Gammarth');
+  (1, 'Hôtel Medina Palace', 'Dakar', '12 Avenue Habib Bourguiba, Dakar'),
+  (2, 'Sahara Resort & Spa', ' Lille', 'Route de Nefta, Lille'),
+  (3, 'Carthage Bay Hotel', 'Roubaix', 'Zone Touristique, Roubaix');
 
--- Rooms (price_per_night in EUR)
+-- Rooms 
 INSERT INTO room (id, number, price_per_night, hotel_id) VALUES
   (1, 101, 85,  1),
   (2, 102, 95,  1),
@@ -44,7 +38,6 @@ INSERT INTO service (id, name, description, price) VALUES
   (4, 'Late checkout', 'Départ tardif (jusqu’à 14:00)', 15),
   (5, 'Room service', 'Service en chambre (frais)', 8);
 
--- Link services to rooms
 INSERT INTO room_service (room_id, service_id) VALUES
   (1, 1), (1, 5),
   (2, 1), (2, 4),
@@ -57,10 +50,7 @@ INSERT INTO room_service (room_id, service_id) VALUES
   (9, 1), (9, 2), (9, 3);
 
 -- Users
--- Passwords (bcrypt):
---   admin@hotel.tn  -> Admin1234!
---   client1@hotel.tn -> Client1234!
---   client2@hotel.tn -> Client1234!
+
 INSERT INTO users (id, email, last_name, first_name, phone, password, roles) VALUES
   (1, 'admin@hotel.tn',  'Hotel',  'Admin', '0000000000', '$2y$10$CRZnNCzbeUkGtQJayQ0hpeH6WrXfRqOJjHA5j6pJPeuKI.XzF2GOC', '["ROLE_ADMIN"]'::json),
   (2, 'client1@hotel.tn','Ben Ali','Sami',  '123456',     '$2y$10$C2BcRhnGAANIIzgkYZhoh.a.QQwXSuOGduxmb3dyIXLS4k3z7Wdsi', '["ROLE_CLIENT"]'::json),
@@ -78,6 +68,15 @@ INSERT INTO maintenance (id, start_date, end_date_planned, end_date_real, status
   (2, '2026-01-15 10:00:00', '2026-01-16 16:00:00', NULL,                  'PLANNED',     'Peinture + inspection électrique', 6),
   (3, '2026-01-20 08:30:00', '2026-01-20 12:00:00', NULL,                  'IN_PROGRESS', 'Réparation fuite salle de bain', 2);
 
+SELECT setval('hotel_id_seq',       (SELECT COALESCE(MAX(id), 1) FROM hotel),       true);
+SELECT setval('room_id_seq',        (SELECT COALESCE(MAX(id), 1) FROM room),        true);
+SELECT setval('service_id_seq',     (SELECT COALESCE(MAX(id), 1) FROM service),     true);
+SELECT setval('users_id_seq',       (SELECT COALESCE(MAX(id), 1) FROM users),       true);
+SELECT setval('reservation_id_seq', (SELECT COALESCE(MAX(id), 1) FROM reservation), true);
+SELECT setval('maintenance_id_seq', (SELECT COALESCE(MAX(id), 1) FROM maintenance), true);
+
 COMMIT;
+
+
 
 

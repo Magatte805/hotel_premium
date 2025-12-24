@@ -2,7 +2,7 @@
 
 Stack **Symfony (backend)** + **React/Vite (frontend)** + **PostgreSQL** via Docker.
 
-## Arborescence (résumé)
+## Arborescence 
 
 ```text
 .
@@ -10,7 +10,7 @@ Stack **Symfony (backend)** + **React/Vite (frontend)** + **PostgreSQL** via Doc
 |-- README.md
 |-- backend/
 |-- frontend/
-`-- vendor/ (généré par composer, selon ton setup)
+`-- vendor
 ```
 
 ## Démarrage (Docker)
@@ -32,7 +32,7 @@ docker compose exec backend php bin/console doctrine:migrations:migrate -n
 
 ## Créer un utilisateur (admin / client)
 
-### Créer un **admin** (commande Symfony)
+### Créer un **admin** 
 
 ```bash
 docker compose exec backend php bin/console app:create-admin --email admin@hotel.tn --password "Admin1234!"
@@ -52,27 +52,23 @@ Puis login sur `http://localhost:5173/login`.
 
 ## Tests (PHPUnit)
 
-### Option A — SQLite (simple, par défaut)
+### Option A SQLite 
 
 ```bash
 docker compose exec backend php bin/phpunit --testdox
 ```
 
-### Option B — PostgreSQL (recommandé si tu veux coller à la prod)
+### Option B  PostgreSQL
 
-1) **Créer la DB de test** (une fois) :
+1) **Créer la DB de test** :
 
 ```bash
 docker compose exec database sh -lc "psql -U app -d postgres -c 'CREATE DATABASE app_test;' || true"
 ```
 
-2) **Appliquer les migrations dans `app_test`** :
 
-```bash
-docker compose exec -e APP_ENV=test -e APP_DEBUG=0 -e DATABASE_URL="postgresql://app:!ChangeMe!@database:5432/app_test?serverVersion=16&charset=utf8" backend php bin/console doctrine:migrations:migrate -n
-```
 
-3) **Lancer PHPUnit (config Postgres)** :
+2) **Lancer PHPUnit (config Postgres)** :
 
 ```bash
 docker compose exec backend php bin/phpunit -c phpunit.pgsql.xml.dist --testdox

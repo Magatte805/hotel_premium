@@ -14,6 +14,39 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/api/admin/maintenance', name: 'admin_maintenance_')]
 class MaintenanceController extends AbstractController
 {
+    // GET /api/admin/maintenance
+    #[Route('', name: 'list', methods: ['GET'])]
+    public function list(MaintenanceRepository $maintenanceRepository): JsonResponse
+    {
+        $maintenances = $maintenanceRepository->findBy([], ['id' => 'DESC']);
+        $data = [];
+
+        foreach ($maintenances as $m) {
+            $room = $m->getRoom();
+            $hotel = $room?->getHotel();
+
+            $data[] = [
+                'id' => $m->getId(),
+                'description' => $m->getDescription(),
+                'status' => $m->getStatus(),
+                'startDate' => $m->getStartDate()?->format('Y-m-d H:i:s'),
+                'endDatePlanned' => $m->getEndDatePlanned()?->format('Y-m-d H:i:s'),
+                'endDateReal' => $m->getEndDateReal()?->format('Y-m-d H:i:s'),
+                'room' => $room ? [
+                    'id' => $room->getId(),
+                    'number' => $room->getNumber(),
+                ] : null,
+                'hotel' => $hotel ? [
+                    'id' => $hotel->getId(),
+                    'name' => $hotel->getName(),
+                    'city' => $hotel->getCity(),
+                ] : null,
+            ];
+        }
+
+        return $this->json($data);
+    }
+
     // POST /api/admin/maintenance
     #[Route('', name: 'create', methods: ['POST'])]
     public function create(

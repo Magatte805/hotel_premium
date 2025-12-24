@@ -2,16 +2,30 @@
 
 namespace App\Tests\Api;
 
+use App\Kernel;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 final class AuthFlowTest extends WebTestCase
 {
     private static bool $migrated = false;
+
+    /**
+     * Override KernelTestCase::createKernel() to avoid relying on KERNEL_CLASS autoloading.
+     */
+    protected static function createKernel(array $options = []): KernelInterface
+    {
+        // Force test env so that framework.test services are available for WebTestCase::createClient().
+        $env = $options['environment'] ?? 'test';
+        $debug = $options['debug'] ?? true;
+
+        return new Kernel($env, (bool) $debug);
+    }
 
     private static function migrateOnce(): void
     {
@@ -88,7 +102,8 @@ final class AuthFlowTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertJson($client->getResponse()->getContent() ?: '');
-        $this->assertSame('client', $client->getResponse()->toArray()['role'] ?? null);
+        $data = json_decode($client->getResponse()->getContent() ?: '{}', true, 512, JSON_THROW_ON_ERROR);
+        $this->assertSame('client', $data['role'] ?? null);
     }
 
     public function testRegisterDuplicateEmailReturns400(): void

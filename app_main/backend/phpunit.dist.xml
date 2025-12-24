@@ -18,6 +18,7 @@
         <server name="KERNEL_CLASS" value="App\\Kernel" force="true" />
         <server name="APP_ENV" value="test" force="true" />
         <server name="APP_SECRET" value="test_secret_change_me" force="true" />
+        <server name="DEFAULT_URI" value="http://localhost" force="true" />
         <server name="SHELL_VERBOSITY" value="-1" />
     </php>
 

@@ -2,6 +2,24 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../../utils/api";
 
+function parseYmdToLocalStart(ymd) {
+  // Backend returns YYYY-MM-DD; Date.parse treats it as UTC which breaks "today" comparisons.
+  if (!ymd || typeof ymd !== "string") return null;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd.trim());
+  if (!m) return null;
+  const y = Number(m[1]);
+  const mo = Number(m[2]) - 1;
+  const d = Number(m[3]);
+  if (!Number.isFinite(y) || !Number.isFinite(mo) || !Number.isFinite(d)) return null;
+  return new Date(y, mo, d, 0, 0, 0, 0);
+}
+
+function parseYmdToLocalEnd(ymd) {
+  const start = parseYmdToLocalStart(ymd);
+  if (!start) return null;
+  return new Date(start.getFullYear(), start.getMonth(), start.getDate(), 23, 59, 59, 999);
+}
+
 function downloadJson(filename, data) {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -21,6 +39,7 @@ export default function AdminDashboard() {
   const [hotels, setHotels] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [reservations, setReservations] = useState([]);
+  const [maintenances, setMaintenances] = useState([]);
 
   const load = async () => {
     setLoading(true);
@@ -45,8 +64,16 @@ export default function AdminDashboard() {
     const resv = await apiFetch("/admin/reservations", { method: "GET" });
     if (resv.res.ok) {
       setReservations(Array.isArray(resv.data) ? resv.data : []);
+      console.log(resv.data);
     } else {
       setReservations([]);
+    }
+
+    const maint = await apiFetch("/admin/maintenance", { method: "GET" });
+    if (maint.res.ok) {
+      setMaintenances(Array.isArray(maint.data) ? maint.data : []);
+    } else {
+      setMaintenances([]);
     }
 
     setLoading(false);
@@ -87,20 +114,43 @@ export default function AdminDashboard() {
     const map = new Map();
     const now = new Date();
     for (const r of reservations) {
-      const roomId = r?.room?.id;
+      const roomId = r?.room?.id ?? r?.roomId ?? r?.room_id;
       if (!roomId) continue;
       const status = String(r.status || "").toLowerCase();
       if (!status.includes("confirm")) continue;
       if (!r.startDate || !r.endDate) continue;
-      const start = new Date(r.startDate);
-      const end = new Date(r.endDate);
+      const start = parseYmdToLocalStart(r.startDate);
+      const end = parseYmdToLocalEnd(r.endDate);
+      if (!start || !end) continue;
       if (start <= now && now <= end) {
-        // keep first match (reservations are returned DESC)
-        if (!map.has(roomId)) map.set(roomId, r);
+        
+        const key = String(roomId);
+        if (!map.has(key)) map.set(key, r);
       }
     }
     return map;
   }, [reservations]);
+
+  const maintenanceByRoomId = useMemo(() => {
+    // keep the most important maintenance per room: "en cours" > "prévu" > others
+    const score = (s) => {
+      const x = String(s || "").toLowerCase();
+      if (x.includes("cours")) return 2;
+      if (x.includes("prévu") || x.includes("prevu")) return 1;
+      return 0;
+    };
+    const map = new Map();
+    for (const m of maintenances) {
+      const roomId = m?.room?.id ?? m?.roomId ?? m?.room_id ?? m?.room;
+      if (!roomId) continue;
+      const key = String(roomId);
+      const curr = map.get(key);
+      if (!curr || score(m?.status) > score(curr?.status)) {
+        map.set(key, m);
+      }
+    }
+    return map;
+  }, [maintenances]);
 
   const editRoomPrice = async (room) => {
     const val = prompt("Nouveau prix / nuit ?", String(room.pricePerNight ?? ""));
@@ -270,9 +320,21 @@ export default function AdminDashboard() {
                       <td className="price">{r.pricePerNight} €</td>
                       <td style={{ color: "var(--muted)" }}>
                         {(() => {
-                          const resv = activeReservationByRoomId.get(r.id);
-                          if (!resv?.user) return "Libre";
-                          const u = resv.user;
+                          const maint = maintenanceByRoomId.get(String(r.id));
+                          const maintStatus = String(maint?.status || "").toLowerCase();
+                          if (maint && !maintStatus.includes("termin")) {
+                            const label = maintStatus.includes("cours")
+                              ? "🛠️ Travaux (en cours)"
+                              : maintStatus.includes("prévu") || maintStatus.includes("prevu")
+                              ? "🗓️ Travaux (prévus)"
+                              : "🛠️ Travaux";
+                            return maint?.description ? `${label} • ${maint.description}` : label;
+                          }
+
+                          const resv = activeReservationByRoomId.get(String(r.id));
+                          if (!resv) return "Libre";
+                          const u = resv.user || resv.client || resv.customer;
+                          if (!u) return "Réservé";
                           const fullName = [u.firstName, u.lastName].filter(Boolean).join(" ").trim();
                           return `${fullName || u.email || "Client"} • ${u.phone || "—"}`;
                         })()}
