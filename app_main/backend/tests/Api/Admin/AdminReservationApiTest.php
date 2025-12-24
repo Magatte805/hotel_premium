@@ -29,7 +29,7 @@ final class AdminReservationApiTest extends ApiWebTestCase
         $this->upsertUser($email, $password, ['ROLE_CLIENT']);
 
         $client->request('GET', '/api/admin/reservations', server: $this->basicAuth($email, $password));
-        // Access control (ROLE_ADMIN) should deny.
+    
         $this->assertContains($client->getResponse()->getStatusCode(), [401, 403]);
     }
 
@@ -72,7 +72,7 @@ final class AdminReservationApiTest extends ApiWebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertResponseHeaderSame('content-type', 'application/json');
 
-        $data = $client->getResponse()->toArray();
+        $data = json_decode($client->getResponse()->getContent() ?: '[]', true, 512, JSON_THROW_ON_ERROR);
         $this->assertIsArray($data);
 
         $found = null;

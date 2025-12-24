@@ -1,4 +1,4 @@
-# Campagne de tests — Hotel Premium (Admin Dashboard)
+# Campagne de tests Hotel Premium (Admin Dashboard)
 
 ## 1) Objectif
 Valider que le **dashboard Admin** reflète correctement l’état des chambres :
@@ -13,6 +13,9 @@ Et que les API Admin sont correctement protégées par authentification et rôle
 - API Admin (Symfony):
   - `GET /api/admin/reservations`
   - `GET /api/admin/maintenance`
+  - `GET /api/admin/maintenance/rooms/{id}`
+  - `POST /api/admin/maintenance`
+  - `PATCH /api/admin/maintenance/{id}`
 - Frontend Admin:
   - `frontend/src/pages/admin/AdminDashboard.jsx` (affichage Réservé/Libre/Travaux)
   - `frontend/src/pages/admin/AdminWorks.jsx` (création & suivi travaux par chambre)
@@ -23,12 +26,11 @@ Et que les API Admin sont correctement protégées par authentification et rôle
 ## 3) Environnements
 ### Tests automatisés (CI / local)
 - **PHPUnit** + Symfony `WebTestCase`
-- Base de données **SQLite** dédiée test: `backend/var/data_test.db`
-- Migrations exécutées automatiquement (via `doctrine:migrations:migrate` dans les tests)
+- Exécution recommandée via **Docker** (extensions PHP OK)
 
 ### Tests manuels (recette)
 - Frontend (navigateur)
-- Backend API + base de données de recette/dev
+- Backend API + base de données dev/recette
 
 ## 4) Données de test recommandées
 Créer au minimum :
@@ -43,7 +45,7 @@ Créer au minimum :
   - Un travail **prévu** (startDate dans le futur)
 
 ## 5) Stratégie & niveaux
-- **Automatisé**: tests API (auth + structure JSON + présence des objets seedés)
+- **Automatisé**: tests API (auth + structure JSON + création/MAJ)
 - **Manuel**: parcours UI (dashboard admin + page Travaux)
 
 ## 6) Cas de tests (manuel) — Dashboard Admin
@@ -66,7 +68,7 @@ Créer au minimum :
 
 ### TC-UI-04 — Chambre en travaux (prévu)
 - **Préconditions**: Maintenance “prévu” sur la chambre (startDate future).
-- **Résultat attendu**: Affiche **🗓️ Travaux (prévus)**.
+- **Résultat attendu**: Affiche **🗓️ Travaux (prévus)** (+ description si présente).
 
 ### TC-UI-05 — Robustesse données client manquantes
 - **Préconditions**: réservation active mais `user.firstName/lastName` vides.
@@ -81,8 +83,8 @@ Créer au minimum :
   - Revenir au dashboard
 - **Résultat attendu**: la chambre est marquée “Travaux”.
 
-## 8) Cas de tests (automatisés) — API
-### Couverture fournie par PHPUnit
+## 8) Cas de tests (automatisés) — API (PHPUnit)
+### Couverture
 - Auth & rôles:
   - Sans auth: 401
   - ROLE_CLIENT sur `/api/admin/*`: 401/403
@@ -90,12 +92,29 @@ Créer au minimum :
   - Le `GET /api/admin/reservations` retourne une liste JSON contenant la réservation seedée
 - Maintenances:
   - Le `GET /api/admin/maintenance` retourne une liste JSON contenant la maintenance seedée
+  - `POST /api/admin/maintenance` calcule correctement le statut (`en cours` / `prévu`)
+  - `PATCH /api/admin/maintenance/{id}` permet de marquer `terminé`
+  - `GET /api/admin/maintenance/rooms/{id}` retourne la liste par chambre
+
+### Localisation des tests
+- **Réservations admin**: `backend/tests/Api/Admin/AdminReservationApiTest.php`
+- **Maintenances admin**: `backend/tests/Api/Admin/AdminMaintenanceApiTest.php`
+- **Auth (register/login)**: `backend/tests/Api/AuthFlowTest.php`
+- **Boot Kernel**: `backend/tests/KernelBootTest.php`
 
 ## 9) Exécution des tests automatisés
-Dans `backend/` :
+### Dans Docker (recommandé)
+Dans la racine du projet:
 
 ```bash
-php bin/phpunit
+docker compose exec backend php bin/phpunit --testdox
+```
+
+### En local (si PHP est installé)
+Dans `backend/` (nécessite les extensions PHP dont `mbstring`) :
+
+```bash
+php bin/phpunit --testdox
 ```
 
 ## 10) Critères d’acceptation

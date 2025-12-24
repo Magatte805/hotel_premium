@@ -56,7 +56,7 @@ final class AdminMaintenanceApiTest extends ApiWebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertResponseHeaderSame('content-type', 'application/json');
 
-        $data = $client->getResponse()->toArray();
+        $data = json_decode($client->getResponse()->getContent() ?: '[]', true, 512, JSON_THROW_ON_ERROR);
         $this->assertIsArray($data);
 
         $found = null;
@@ -113,14 +113,14 @@ final class AdminMaintenanceApiTest extends ApiWebTestCase
         );
 
         $this->assertResponseStatusCodeSame(201);
-        $created = $client->getResponse()->toArray();
+        $created = json_decode($client->getResponse()->getContent() ?: '{}', true, 512, JSON_THROW_ON_ERROR);
         $this->assertSame('Climatisation', $created['description'] ?? null);
         $this->assertSame('en cours', $created['status'] ?? null, 'Status must be computed as "en cours" for past startDate.');
 
         // List by room should contain it
         $client->request('GET', '/api/admin/maintenance/rooms/'.$room->getId(), server: $this->basicAuth($adminEmail, $adminPassword));
         $this->assertResponseIsSuccessful();
-        $rows = $client->getResponse()->toArray();
+        $rows = json_decode($client->getResponse()->getContent() ?: '[]', true, 512, JSON_THROW_ON_ERROR);
         $this->assertIsArray($rows);
         $this->assertNotEmpty($rows);
 
@@ -173,7 +173,7 @@ final class AdminMaintenanceApiTest extends ApiWebTestCase
             ], JSON_THROW_ON_ERROR)
         );
         $this->assertResponseStatusCodeSame(201);
-        $created = $client->getResponse()->toArray();
+        $created = json_decode($client->getResponse()->getContent() ?: '{}', true, 512, JSON_THROW_ON_ERROR);
         $id = (int) ($created['id'] ?? 0);
         $this->assertGreaterThan(0, $id);
 
@@ -188,7 +188,7 @@ final class AdminMaintenanceApiTest extends ApiWebTestCase
         );
 
         $this->assertResponseIsSuccessful();
-        $updated = $client->getResponse()->toArray();
+        $updated = json_decode($client->getResponse()->getContent() ?: '{}', true, 512, JSON_THROW_ON_ERROR);
         $this->assertSame('terminé', $updated['status'] ?? null);
         $this->assertSame('2000-01-02 10:00:00', $updated['endDateReal'] ?? null);
     }
