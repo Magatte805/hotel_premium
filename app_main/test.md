@@ -20,17 +20,16 @@ Et que les API Admin sont correctement protégées par authentification et rôle
   - `frontend/src/pages/admin/AdminDashboard.jsx` (affichage Réservé/Libre/Travaux)
   - `frontend/src/pages/admin/AdminWorks.jsx` (création & suivi travaux par chambre)
 
-### Exclu
-- Paiement, facturation, notifications, performance/charge.
+
 
 ## 3) Environnements
 ### Tests automatisés (CI / local)
 - **PHPUnit** + Symfony `WebTestCase`
-- Exécution recommandée via **Docker** (extensions PHP OK)
+- Exécution recommandée via **Docker** 
 
-### Tests manuels (recette)
+### Tests manuels 
 - Frontend (navigateur)
-- Backend API + base de données dev/recette
+- Backend API + base de données dev
 
 ## 4) Données de test recommandées
 Créer au minimum :
@@ -48,8 +47,8 @@ Créer au minimum :
 - **Automatisé**: tests API (auth + structure JSON + création/MAJ)
 - **Manuel**: parcours UI (dashboard admin + page Travaux)
 
-## 6) Cas de tests (manuel) — Dashboard Admin
-### TC-UI-01 — Chambre réservée (aujourd’hui)
+## 6) Cas de tests (manuel)  Dashboard Admin
+###  Chambre réservée (aujourd’hui)
 - **Préconditions**: Réservation confirmée active pour une chambre.
 - **Étapes**:
   - Ouvrir Dashboard Admin
@@ -57,25 +56,25 @@ Créer au minimum :
 - **Résultat attendu**:
   - La ligne chambre affiche le client (nom ou email) et n’affiche pas “Libre”.
 
-### TC-UI-02 — Chambre libre
+###  Chambre libre
 - **Préconditions**: Pas de réservation active et pas de travaux actifs/prévus.
 - **Résultat attendu**: “Libre”.
 
-### TC-UI-03 — Chambre en travaux (en cours)
+### Chambre en travaux (en cours)
 - **Préconditions**: Maintenance “en cours” sur la chambre (startDate passée).
-- **Résultat attendu**: Affiche **🛠️ Travaux (en cours)** (+ description si présente).
+- **Résultat attendu**: Affiche ** Travaux (en cours)** (+ description si présente).
 - **Note de priorité**: “Travaux” doit **primer** sur “Réservé/Libre” si les 2 existent.
 
-### TC-UI-04 — Chambre en travaux (prévu)
+### TC-UI-04 -Chambre en travaux (prévu)
 - **Préconditions**: Maintenance “prévu” sur la chambre (startDate future).
-- **Résultat attendu**: Affiche **🗓️ Travaux (prévus)** (+ description si présente).
+- **Résultat attendu**: Affiche ** Travaux (prévus)** (+ description si présente).
 
 ### TC-UI-05 — Robustesse données client manquantes
 - **Préconditions**: réservation active mais `user.firstName/lastName` vides.
 - **Résultat attendu**: Affiche l’email si dispo, sinon “Réservé”.
 
 ## 7) Cas de tests (manuel) — Admin Travaux
-### TC-UI-06 — Créer un travail et vérifier le dashboard
+### TC-UI-06 - Créer un travail et vérifier le dashboard
 - **Étapes**:
   - Admin → Travaux
   - Sélectionner une chambre
